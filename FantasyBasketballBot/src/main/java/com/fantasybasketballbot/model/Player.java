@@ -6,7 +6,7 @@ import java.util.HashMap;
 public class Player {
     private String playerId;
     private String playerName;
-    public static ArrayList<StatsForGame> games = new ArrayList<>();
+    public static ArrayList<StatsForGame> seasonSFG_2425  = new ArrayList<>();
     private ArrayList<StatsForGame> statsForGames;
 
     // Static map to store players by their ID

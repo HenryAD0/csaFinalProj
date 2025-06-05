@@ -6,8 +6,8 @@ import java.util.HashMap;
 public class Player {
     private String playerId;
     private String playerName;
-    public static ArrayList<StatsForGame> seasonSFG_2425  = new ArrayList<>();
-    private ArrayList<StatsForGame> statsForGames;
+    private ArrayList<StatsForGame> games; // List of all games
+    private ArrayList<Double> seasonAVG_2425; // List of season averages for each stat
 
     // Static map to store players by their ID
     private static HashMap<String, Player> players = new HashMap<>();
@@ -15,70 +15,56 @@ public class Player {
     public Player(String playerId, String playerName) {
         this.playerId = playerId;
         this.playerName = playerName;
-        statsForGames = new ArrayList<>();
+        this.games = new ArrayList<>();
+        this.seasonAVG_2425 = new ArrayList<>();
+        players.put(playerId, this); // Add the player to the HashMap
     }
 
-    public Player() {
-        statsForGames = new ArrayList<>();
+    // Constructor to initialize with season averages
+    public Player(String playerId, String playerName, ArrayList<Double> seasonAVG_2425) {
+        this.playerId = playerId;
+        this.playerName = playerName;
+        this.games = new ArrayList<>();
+        this.seasonAVG_2425 = seasonAVG_2425;
+        players.put(playerId, this); // Add the player to the HashMap
     }
 
-    public static void addStatsForPlayer(String playerId, StatsForGame stats) {
-        Player player = players.get(playerId);
-        if (player == null) {
-            player = new Player(playerId, "Unknown"); // Default name if not provided
-            players.put(playerId, player);
+    public void addStatsForGame(StatsForGame stats) {
+        games.add(stats);
+    }
+
+    public void calculateSeasonAverages() {
+        double[] totals = new double[14]; // Array to accumulate totals for each stat
+        int gameCount = games.size();
+
+        for (StatsForGame game : games) {
+            totals[0] += game.getMinutes();
+            totals[1] += game.getFgm();
+            totals[2] += game.getFga();
+            totals[3] += game.getThreePm();
+            totals[4] += game.getFtm();
+            totals[5] += game.getFta();
+            totals[6] += game.getReb();
+            totals[7] += game.getAst();
+            totals[8] += game.getStl();
+            totals[9] += game.getBlk();
+            totals[10] += game.getPf();
+            totals[11] += game.getTo();
+            totals[12] += game.getPts();
+            totals[13] += game.getFpts();
         }
-        player.statsForGames.add(stats);
-    }
 
-    public void loadGamesFromCSV(String csvFilePath) {
-        try (CSVReader reader = new CSVReader(new FileReader(csvFilePath))) {
-            String[] nextLine;
-            boolean isFirstLine = true;
-
-            while ((nextLine = reader.readNext()) != null) {
-                if (isFirstLine) {
-                    isFirstLine = false;
-                    continue; // skip header
-                }
-
-                StatsForGame game = new StatsForGame(
-                    nextLine[0], // date
-                    nextLine[1], // opponent
-                    parseMinutes(nextLine[2]), // minutes as int
-                    Integer.parseInt(nextLine[3]), // FGM
-                    Integer.parseInt(nextLine[4]), // FGA
-                    Integer.parseInt(nextLine[5]), // 3PM
-                    Integer.parseInt(nextLine[6]), // FTM
-                    Integer.parseInt(nextLine[7]), // FTA
-                    Integer.parseInt(nextLine[8]), // REB
-                    Integer.parseInt(nextLine[9]), // AST
-                    Integer.parseInt(nextLine[10]), // STL
-                    Integer.parseInt(nextLine[11]), // BLK
-                    Integer.parseInt(nextLine[12]), // PF
-                    Integer.parseInt(nextLine[13]), // TO
-                    Integer.parseInt(nextLine[14]), // PTS
-                    Integer.parseInt(nextLine[15])  // FPTS
-                );
-
-                games.add(game);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        // Calculate averages and store them in seasonAVG_2425
+        seasonAVG_2425.clear();
+        for (double total : totals) {
+            seasonAVG_2425.add(total / gameCount);
         }
     }
 
-    private int parseMinutes(String time) {
-        try {
-            String[] parts = time.split(":");
-            int minutes = Integer.parseInt(parts[0]);
-            int seconds = Integer.parseInt(parts[1]);
-            return minutes + (seconds >= 30 ? 1 : 0); // round up if 30+ sec
-        } catch (Exception e) {
-            return 0; // fallback
-        }
+    public ArrayList<Double> getSeasonAVG_2425() {
+        return seasonAVG_2425;
     }
-    
+
     public String getPlayerId() {
         return playerId;
     }
@@ -87,11 +73,21 @@ public class Player {
         return playerName;
     }
 
-    public static ArrayList<StatsForGame> getSeasonSFG() {
-        return seasonSFG_2425;
+    public ArrayList<StatsForGame> getGames() {
+        return games;
     }
 
-    public static void addStatsForGame(StatsForGame stats) {
-        seasonSFG_2425.add(stats);
+    // Static method to retrieve or create a player by ID
+    public static Player getOrCreatePlayer(String playerId, String playerName) {
+        Player player = players.get(playerId);
+        if (player == null) {
+            player = new Player(playerId, playerName);
+        }
+        return player;
+    }
+
+    // Static method to get all players
+    public static HashMap<String, Player> getAllPlayers() {
+        return players;
     }
 }

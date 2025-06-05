@@ -4,10 +4,19 @@
 The Fantasy Basketball Bot is a Java desktop application designed to assist fantasy basketball managers in optimizing their rosters, evaluating free agents, and making informed draft decisions through statistical analysis and basic machine learning techniques.
 
 ## Features
-- **Real-time Roster Optimization**: Provides recommendations for roster changes based on current league data and player performance metrics.
-- **Free Agent Ranking**: Scores and ranks available players using weighted statistics and recent performance trends.
-- **Draft Analyzer**: Compares player projections with historical outcomes to identify potential "busts" and "sleepers" using a basic neural network.
-- **Machine Learning Integration**: Utilizes Deeplearning4j to train a neural network on historical fantasy data to predict future fantasy points.
+- **Home Page**:
+  - A simple home page with title text.
+  - Buttons to navigate to the "Roster Optimization" and "My Roster" pages.
+- **Roster Optimization**:
+  - Import players from hardcoded CSV files to create player objects.
+  - Select up to 8 players for the current team and additional "roster interests."
+  - Analyze the selected players using a placeholder machine learning model to find the optimal roster.
+  - Save optimized rosters to a JSON file with user-defined names.
+- **Roster Display**:
+  - View saved rosters from the JSON file.
+  - Buttons to add or optimize future interests, navigating back to the roster optimization page.
+- **Machine Learning Integration**:
+  - Placeholder for Deeplearning4j-based analysis of player data to optimize rosters.
 
 ## Project Structure
 ```
@@ -27,9 +36,9 @@ FantasyBasketballBot
 │   │   │   │       ├── ml
 │   │   │   │       │   └── MLModel.java
 │   │   │   │       └── ui
-│   │   │   │           ├── RosterOptimizerPanel.java
-│   │   │   │           ├── FreeAgentsPanel.java
-│   │   │   │           └── DraftAnalyzerPanel.java
+│   │   │   │           ├── HomePagePanel.java
+│   │   │   │           ├── RosterOptimizationPanel.java
+│   │   │   │           └── RosterDisplayPanel.java
 │   │   └── resources
 │   │       └── application.properties
 ├── pom.xml
@@ -56,9 +65,10 @@ FantasyBasketballBot
    ```
 
 ## Dependencies
-- Java 11 or higher
+- Java 21 or higher
 - Maven
 - Deeplearning4j (for machine learning functionalities)
+- Gson (for JSON file handling)
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.

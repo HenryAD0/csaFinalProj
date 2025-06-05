@@ -1,11 +1,8 @@
 package com.fantasybasketballbot.util;
 
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import com.fantasybasketballbot.model.Player;
 import com.fantasybasketballbot.model.StatsForGame;
 
@@ -15,38 +12,51 @@ public class CSVReader {
         String line;
         String csvSplitBy = ",";
         
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(csvSplitBy);
-                if (data.length >= 18) { // Ensure there are enough columns
-                    String playerId = data[0];
-                    String date = data[1];
-                    String homeAway = data[2];
-                    String opponent = data[3];
-                    String gpGs = data[4];
-                    String minutes = data[5];
-                    String fgmFga = data[6];
-                    double fgPct = Double.parseDouble(data[7]);
-                    String threePmPa = data[8];
-                    double threePct = Double.parseDouble(data[9]);
-                    String ftmFta = data[10];
-                    double ftPct = Double.parseDouble(data[11]);
-                    int offReb = Integer.parseInt(data[12]);
-                    int defReb = Integer.parseInt(data[13]);
-                    String totReb = data[14];
-                    int ast = Integer.parseInt(data[15]);
-                    String pfDq = data[16];
-                    int stl = Integer.parseInt(data[17]);
-                    int to = Integer.parseInt(data[18]);
-                    int blk = Integer.parseInt(data[19]);
-                    String pts = data[20];
+        // Extract player ID from the file name
+        String playerId = filePath.substring(filePath.lastIndexOf("\\") + 1, filePath.lastIndexOf("."));
+        String playerName = "Unknown"; // Default name if not provided
 
-                    StatsForGame stats = new StatsForGame(playerId, date, homeAway, opponent, gpGs, minutes, fgmFga, fgPct, threePmPa, threePct, ftmFta, ftPct, offReb, defReb, totReb, ast, pfDq, stl, to, blk, pts);
-                    
-                    // Assuming Player class has a method to add stats
-                    Player.addStatsForPlayer(playerId, stats);
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            boolean isFirstLine = true;
+
+            while ((line = br.readLine()) != null) {
+                if (isFirstLine) {
+                    isFirstLine = false; // Skip the header row
+                    continue;
+                }
+
+                String[] data = line.split(csvSplitBy);
+                if (data.length >= 15) { // Ensure there are enough columns for StatsForGame
+                    String date = data[0];
+                    String opponent = data[1];
+                    int minutes = Integer.parseInt(data[2]);
+                    int fgm = Integer.parseInt(data[3]);
+                    int fga = Integer.parseInt(data[4]);
+                    int threePm = Integer.parseInt(data[5]);
+                    int ftm = Integer.parseInt(data[6]);
+                    int fta = Integer.parseInt(data[7]);
+                    int reb = Integer.parseInt(data[8]);
+                    int ast = Integer.parseInt(data[9]);
+                    int stl = Integer.parseInt(data[10]);
+                    int blk = Integer.parseInt(data[11]);
+                    int pf = Integer.parseInt(data[12]);
+                    int to = Integer.parseInt(data[13]);
+                    int pts = Integer.parseInt(data[14]);
+                    int fpts = Integer.parseInt(data[15]);
+
+                    // Retrieve or create the Player object
+                    Player player = Player.getOrCreatePlayer(playerId, playerName);
+
+                    // Add stats for the player
+                    player.addStatsForGame(new StatsForGame(date, opponent, minutes, fgm, fga, threePm, ftm, fta, reb, ast, stl, blk, pf, to, pts, fpts));
                 }
             }
+
+            // Calculate averages for all players
+            for (Player player : Player.getAllPlayers().values()) {
+                player.calculateSeasonAverages();
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

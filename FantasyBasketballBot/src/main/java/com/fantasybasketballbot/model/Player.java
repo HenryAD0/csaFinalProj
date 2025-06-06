@@ -12,6 +12,7 @@ public class Player {
     // Static map to store players by their ID
     private static HashMap<String, Player> players = new HashMap<>();
 
+    // Constructor to initialize with player ID and name
     public Player(String playerId, String playerName) {
         this.playerId = playerId;
         this.playerName = playerName;
@@ -20,14 +21,23 @@ public class Player {
         players.put(playerId, this); // Add the player to the HashMap
     }
 
-    // Constructor to initialize with season averages
-    public Player(String playerId, String playerName, ArrayList<Double> seasonAVG_2425) {
+    // Constructor to initialize with player ID, name, and stats
+    public Player(String playerId, String playerName, ArrayList<StatsForGame> games) {
         this.playerId = playerId;
         this.playerName = playerName;
-        this.games = new ArrayList<>();
-        this.seasonAVG_2425 = seasonAVG_2425;
+        this.games = games;
+        this.seasonAVG_2425 = new ArrayList<>();
         players.put(playerId, this); // Add the player to the HashMap
     }
+
+    // Constructor to initialize with season averages
+    //public Player(String playerId, String playerName, ArrayList<Double> seasonAVG_2425) {
+    //    this.playerId = playerId;
+    //    this.playerName = playerName;
+    //    this.games = new ArrayList<>();
+    //    this.seasonAVG_2425 = seasonAVG_2425;
+    //    players.put(playerId, this); // Add the player to the HashMap
+    //}
 
     public void addStatsForGame(StatsForGame stats) {
         games.add(stats);
@@ -89,5 +99,13 @@ public class Player {
     // Static method to get all players
     public static HashMap<String, Player> getAllPlayers() {
         return players;
+    }
+
+    public double calculateAverageFantasyPoints() {
+        double totalFantasyPoints = 0;
+        for (StatsForGame game : games) {
+            totalFantasyPoints += game.getFpts();
+        }
+        return totalFantasyPoints / games.size();
     }
 }

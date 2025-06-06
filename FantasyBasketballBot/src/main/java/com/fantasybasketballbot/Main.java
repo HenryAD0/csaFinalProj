@@ -1,6 +1,12 @@
 package com.fantasybasketballbot;
 
 
+import com.fantasybasketballbot.model.Player;
+import com.fantasybasketballbot.model.StatsForGame;
+import com.fantasybasketballbot.ml.MLModel;
+
+import java.util.ArrayList;
+import java.util.Scanner;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;

@@ -1,50 +1,346 @@
 package com.fantasybasketballbot;
 
+
 import javax.swing.*;
 import java.awt.*;
-import com.fantasybasketballbot.ui.HomePagePanel;
-import com.fantasybasketballbot.ui.RosterOptimizationPanel;
-import com.fantasybasketballbot.ui.RosterDisplayPanel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+import com.fantasybasketballbot.model.Player;
+import com.fantasybasketballbot.model.StatsForGame;
+import com.fantasybasketballbot.ml.MLModel;
+
 
 public class Main {
-    private static JFrame frame;
+    private static void addPlayerStats(Player player, String[][] games) {
+        for (String[] game : games) {
+            player.addStatsForGame(new StatsForGame(
+                game[0], game[1],
+                Integer.parseInt(game[2]),  // minutes
+                Integer.parseInt(game[3]),  // fgm
+                Integer.parseInt(game[4]),  // fga
+                Integer.parseInt(game[5]),  // 3pm
+                Integer.parseInt(game[6]),  // ftm
+                Integer.parseInt(game[7]),  // fta
+                Integer.parseInt(game[8]),  // reb
+                Integer.parseInt(game[9]),  // ast
+                Integer.parseInt(game[10]), // stl
+                Integer.parseInt(game[11]), // blk
+                Integer.parseInt(game[12]), // pf
+                Integer.parseInt(game[13]), // to
+                Integer.parseInt(game[14]), // pts
+                Integer.parseInt(game[15])  // fpts
+            ));
+        }
+        player.calculateSeasonAverages();
+    }
+
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            // Create the main application frame
-            frame = new JFrame("Fantasy Basketball Bot");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setSize(800, 600);
-            frame.setLayout(new BorderLayout());
+        List<Player> players = new ArrayList<>();
 
-            // Start with the Home Page
-            showHomePage();
 
-            frame.setVisible(true);
+        // Create players with their stats
+        Player player1 = new Player("1", "Nikola Jokic");
+        addPlayerStats(player1, new String[][]{
+            {"2024-01-01", "LAL", "35", "12", "18", "1", "5", "6", "12", "9", "1", "1", "2", "3", "32", "55"},
+            {"2024-01-03", "GSW", "33", "10", "15", "0", "4", "4", "10", "8", "2", "1", "3", "2", "24", "45"},
+            {"2024-01-05", "BOS", "36", "13", "20", "2", "6", "7", "15", "11", "1", "2", "2", "4", "38", "65"},
+            {"2024-01-07", "MIA", "34", "11", "16", "1", "5", "6", "13", "10", "2", "1", "3", "3", "30", "52"},
+            {"2024-01-09", "PHX", "35", "12", "19", "1", "4", "5", "14", "9", "1", "2", "2", "2", "31", "56"},
+            {"2024-01-11", "DEN", "36", "14", "21", "2", "7", "8", "16", "12", "2", "1", "3", "3", "41", "70"}
         });
-    }
+        players.add(player1);
 
-    // Method to display the Home Page
-    public static void showHomePage() {
-        frame.getContentPane().removeAll();
-        frame.add(new HomePagePanel(), BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
-    }
 
-    // Method to display the Roster Optimization Page
-    public static void showRosterOptimizationPage() {
-        frame.getContentPane().removeAll();
-        frame.add(new RosterOptimizationPanel(), BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
-    }
+        Player player2 = new Player("2", "Joel Embiid");
+        addPlayerStats(player2, new String[][]{
+            {"2024-01-01", "NYK", "36", "15", "25", "2", "8", "10", "11", "5", "1", "3", "2", "3", "44", "65"},
+            {"2024-01-03", "BKN", "34", "13", "22", "1", "7", "8", "12", "4", "2", "2", "3", "2", "36", "55"},
+            {"2024-01-05", "TOR", "35", "14", "24", "1", "9", "10", "13", "6", "1", "4", "2", "4", "40", "62"},
+            {"2024-01-07", "CLE", "33", "12", "20", "0", "6", "8", "10", "3", "2", "2", "3", "3", "30", "48"},
+            {"2024-01-09", "CHI", "35", "16", "26", "2", "10", "12", "14", "5", "1", "3", "2", "2", "48", "70"},
+            {"2024-01-11", "MIL", "36", "14", "23", "1", "8", "9", "12", "4", "2", "3", "3", "3", "39", "60"}
+        });
+        players.add(player2);
 
-    // Method to display the Roster Display Page
-    public static void showRosterDisplayPage() {
-        frame.getContentPane().removeAll();
-        frame.add(new RosterDisplayPanel(), BorderLayout.CENTER);
-        frame.revalidate();
-        frame.repaint();
+
+        Player player3 = new Player("3", "Giannis Antetokounmpo");
+        addPlayerStats(player3, new String[][]{
+            {"2024-01-01", "PHI", "35", "13", "20", "0", "6", "10", "12", "6", "2", "2", "2", "4", "32", "52"},
+            {"2024-01-03", "IND", "34", "14", "22", "0", "7", "12", "14", "7", "1", "3", "3", "3", "35", "58"},
+            {"2024-01-05", "CHA", "33", "12", "18", "0", "5", "8", "11", "5", "2", "2", "2", "2", "29", "48"},
+            {"2024-01-07", "ATL", "36", "15", "24", "1", "8", "13", "15", "8", "3", "2", "3", "4", "41", "65"},
+            {"2024-01-09", "WAS", "32", "11", "16", "0", "4", "7", "10", "4", "1", "1", "2", "3", "26", "42"},
+            {"2024-01-11", "ORL", "35", "14", "21", "0", "7", "11", "13", "6", "2", "2", "3", "3", "35", "56"}
+        });
+        players.add(player3);
+
+
+        Player player4 = new Player("4", "Luka Doncic");
+        addPlayerStats(player4, new String[][]{
+            {"2024-01-01", "HOU", "36", "12", "22", "4", "5", "6", "8", "12", "2", "0", "2", "4", "41", "62"},
+            {"2024-01-03", "UTA", "35", "11", "20", "3", "4", "5", "7", "10", "1", "0", "3", "3", "35", "54"},
+            {"2024-01-05", "POR", "34", "10", "18", "3", "3", "4", "6", "9", "2", "1", "2", "2", "32", "50"},
+            {"2024-01-07", "SAC", "37", "14", "25", "5", "6", "7", "9", "14", "3", "0", "3", "5", "49", "72"},
+            {"2024-01-09", "LAC", "35", "11", "21", "4", "4", "5", "7", "11", "2", "0", "2", "3", "38", "58"},
+            {"2024-01-11", "GSW", "36", "13", "23", "4", "5", "6", "8", "13", "2", "1", "3", "4", "43", "65"}
+        });
+        players.add(player4);
+
+
+        Player player5 = new Player("5", "Shai Gilgeous-Alexander");
+        addPlayerStats(player5, new String[][]{
+            {"2024-01-01", "BKN", "35", "11", "18", "1", "8", "9", "5", "7", "3", "1", "2", "2", "33", "52"},
+            {"2024-01-03", "BOS", "34", "12", "20", "2", "7", "8", "4", "6", "2", "1", "3", "3", "37", "54"},
+            {"2024-01-05", "PHI", "36", "13", "22", "1", "9", "10", "6", "8", "4", "2", "2", "2", "38", "60"},
+            {"2024-01-07", "WAS", "33", "10", "16", "0", "6", "7", "3", "5", "2", "1", "2", "1", "26", "42"},
+            {"2024-01-09", "CHA", "35", "12", "19", "2", "8", "9", "5", "7", "3", "1", "3", "2", "36", "55"},
+            {"2024-01-11", "MIA", "34", "11", "17", "1", "7", "8", "4", "6", "3", "1", "2", "2", "32", "50"}
+        });
+        players.add(player5);
+
+
+        Player player6 = new Player("6", "Jayson Tatum");
+        addPlayerStats(player6, new String[][]{
+            {"2024-01-01", "MIL", "36", "12", "23", "4", "5", "6", "8", "5", "1", "1", "2", "3", "41", "58"},
+            {"2024-01-03", "IND", "35", "11", "21", "3", "4", "5", "7", "4", "2", "1", "3", "2", "35", "52"},
+            {"2024-01-05", "MIN", "37", "13", "25", "5", "6", "7", "9", "6", "1", "2", "2", "4", "47", "65"},
+            {"2024-01-07", "CLE", "34", "10", "19", "2", "3", "4", "6", "3", "1", "1", "2", "2", "29", "44"},
+            {"2024-01-09", "NYK", "36", "12", "22", "4", "5", "6", "8", "5", "2", "1", "3", "3", "41", "58"},
+            {"2024-01-11", "ORL", "35", "11", "20", "3", "4", "5", "7", "4", "1", "1", "2", "2", "35", "50"}
+        });
+        players.add(player6);
+
+
+        Player player7 = new Player("7", "Donovan Mitchell");
+        addPlayerStats(player7, new String[][]{
+            {"2024-01-01", "DEN", "35", "11", "22", "4", "4", "5", "4", "6", "2", "0", "2", "3", "38", "52"},
+            {"2024-01-03", "LAL", "34", "10", "20", "3", "3", "4", "3", "5", "1", "1", "3", "2", "32", "45"},
+            {"2024-01-05", "PHX", "36", "13", "25", "5", "5", "6", "5", "7", "3", "0", "2", "4", "46", "62"},
+            {"2024-01-07", "POR", "33", "9", "18", "2", "2", "3", "2", "4", "1", "0", "2", "2", "26", "38"},
+            {"2024-01-09", "SAC", "35", "12", "23", "4", "4", "5", "4", "6", "2", "1", "3", "3", "40", "54"},
+            {"2024-01-11", "GSW", "34", "10", "21", "3", "3", "4", "3", "5", "2", "0", "2", "2", "32", "46"}
+        });
+        players.add(player7);
+
+
+        Player player8 = new Player("8", "Devin Booker");
+        addPlayerStats(player8, new String[][]{
+            {"2024-01-01", "LAC", "36", "12", "23", "3", "5", "6", "5", "8", "1", "0", "2", "3", "38", "54"},
+            {"2024-01-03", "SAC", "35", "11", "21", "2", "4", "5", "4", "7", "2", "0", "3", "2", "32", "48"},
+            {"2024-01-05", "DAL", "37", "14", "26", "4", "6", "7", "6", "9", "1", "1", "2", "4", "46", "64"},
+            {"2024-01-07", "MEM", "34", "10", "19", "2", "3", "4", "3", "6", "1", "0", "2", "2", "29", "42"},
+            {"2024-01-09", "NOP", "36", "13", "24", "3", "5", "6", "5", "8", "2", "0", "3", "3", "40", "56"},
+            {"2024-01-11", "DEN", "35", "11", "22", "3", "4", "5", "4", "7", "1", "0", "2", "2", "35", "50"}
+        });
+        players.add(player8);
+
+
+        Player player9 = new Player("9", "Anthony Edwards");
+        addPlayerStats(player9, new String[][]{
+            {"2024-01-01", "OKC", "35", "11", "21", "3", "4", "5", "5", "4", "2", "1", "2", "2", "35", "48"},
+            {"2024-01-03", "HOU", "34", "10", "19", "2", "3", "4", "4", "3", "1", "1", "3", "2", "29", "42"},
+            {"2024-01-05", "MEM", "36", "13", "24", "4", "5", "6", "6", "5", "3", "2", "2", "3", "43", "60"},
+            {"2024-01-07", "UTA", "33", "9", "17", "2", "2", "3", "3", "2", "1", "1", "2", "1", "24", "35"},
+            {"2024-01-09", "POR", "35", "12", "22", "3", "4", "5", "5", "4", "2", "1", "3", "2", "37", "50"},
+            {"2024-01-11", "LAC", "34", "10", "20", "3", "3", "4", "4", "3", "2", "1", "2", "2", "32", "44"}
+        });
+        players.add(player9);
+
+
+        Player player10 = new Player("10", "De'Aaron Fox");
+        addPlayerStats(player10, new String[][]{
+            {"2024-01-01", "GSW", "34", "10", "19", "2", "3", "4", "3", "7", "2", "0", "2", "2", "29", "44"},
+            {"2024-01-03", "LAC", "33", "9", "17", "1", "2", "3", "2", "6", "1", "0", "3", "2", "23", "36"},
+            {"2024-01-05", "PHX", "35", "12", "22", "3", "4", "5", "4", "8", "3", "1", "2", "3", "37", "54"},
+            {"2024-01-07", "DAL", "32", "8", "16", "1", "2", "3", "2", "5", "1", "0", "2", "1", "21", "32"},
+            {"2024-01-09", "DEN", "34", "11", "20", "2", "3", "4", "3", "7", "2", "0", "3", "2", "31", "46"},
+            {"2024-01-11", "HOU", "33", "9", "18", "2", "2", "3", "3", "6", "2", "0", "2", "2", "26", "40"}
+        });
+        players.add(player10);
+
+
+        // Add role players with lower fantasy point production
+        Player player11 = new Player("11", "Marcus Smart");
+        addPlayerStats(player11, new String[][]{
+            {"2024-01-01", "DET", "28", "4", "10", "2", "1", "2", "3", "5", "2", "0", "2", "2", "13", "25"},
+            {"2024-01-03", "ORL", "30", "5", "12", "1", "2", "2", "2", "6", "3", "0", "3", "1", "15", "28"},
+            {"2024-01-05", "CHA", "27", "3", "9", "1", "0", "0", "2", "4", "1", "1", "2", "2", "9", "18"},
+            {"2024-01-07", "IND", "29", "6", "13", "2", "2", "3", "3", "7", "2", "0", "2", "2", "18", "32"},
+            {"2024-01-09", "ATL", "26", "4", "11", "1", "1", "2", "2", "5", "2", "0", "3", "1", "12", "22"},
+            {"2024-01-11", "WAS", "28", "5", "12", "2", "1", "1", "3", "6", "2", "1", "2", "2", "15", "28"}
+        });
+        players.add(player11);
+
+
+        Player player12 = new Player("12", "Josh Hart");
+        addPlayerStats(player12, new String[][]{
+            {"2024-01-01", "CLE", "25", "3", "7", "1", "0", "0", "6", "3", "1", "0", "1", "1", "8", "18"},
+            {"2024-01-03", "MIA", "27", "4", "8", "0", "1", "2", "7", "2", "1", "0", "2", "0", "9", "20"},
+            {"2024-01-05", "CHI", "24", "2", "6", "0", "2", "2", "5", "2", "0", "1", "1", "1", "6", "15"},
+            {"2024-01-07", "BKN", "26", "5", "9", "1", "1", "2", "8", "3", "2", "0", "2", "1", "13", "25"},
+            {"2024-01-09", "TOR", "23", "3", "7", "0", "0", "0", "6", "2", "1", "0", "1", "0", "6", "16"},
+            {"2024-01-11", "PHI", "25", "4", "8", "1", "1", "2", "7", "3", "1", "0", "2", "1", "11", "22"}
+        });
+        players.add(player12);
+
+
+        Player player13 = new Player("13", "Bruce Brown");
+        addPlayerStats(player13, new String[][]{
+            {"2024-01-01", "MIN", "24", "4", "9", "1", "1", "2", "3", "2", "1", "1", "2", "1", "11", "20"},
+            {"2024-01-03", "POR", "26", "5", "11", "2", "0", "0", "4", "3", "2", "0", "1", "2", "14", "24"},
+            {"2024-01-05", "SAC", "23", "3", "8", "0", "2", "2", "2", "2", "1", "0", "2", "1", "8", "16"},
+            {"2024-01-07", "LAL", "25", "6", "12", "1", "1", "2", "3", "3", "1", "1", "1", "1", "15", "26"},
+            {"2024-01-09", "HOU", "22", "4", "9", "1", "0", "0", "3", "2", "0", "0", "2", "0", "10", "18"},
+            {"2024-01-11", "UTA", "24", "5", "10", "1", "1", "2", "4", "3", "1", "0", "1", "1", "13", "22"}
+        });
+        players.add(player13);
+
+
+        Player player14 = new Player("14", "Pat Connaughton");
+        addPlayerStats(player14, new String[][]{
+            {"2024-01-01", "BOS", "22", "3", "8", "2", "0", "0", "4", "1", "0", "0", "1", "1", "10", "16"},
+            {"2024-01-03", "NYK", "24", "4", "9", "3", "0", "0", "5", "2", "1", "0", "2", "0", "13", "22"},
+            {"2024-01-05", "CLE", "21", "2", "7", "1", "0", "0", "3", "1", "0", "0", "1", "1", "6", "12"},
+            {"2024-01-07", "PHI", "23", "5", "10", "3", "1", "2", "4", "2", "1", "0", "2", "1", "16", "24"},
+            {"2024-01-09", "BKN", "20", "3", "8", "2", "0", "0", "3", "1", "0", "0", "1", "0", "9", "15"},
+            {"2024-01-11", "CHA", "22", "4", "9", "2", "1", "1", "4", "2", "1", "0", "1", "1", "12", "20"}
+        });
+        players.add(player14);
+
+
+        Player player15 = new Player("15", "Donte DiVincenzo");
+        addPlayerStats(player15, new String[][]{
+            {"2024-01-01", "LAC", "25", "4", "10", "2", "1", "2", "3", "2", "2", "0", "2", "1", "13", "22"},
+            {"2024-01-03", "SAC", "27", "5", "11", "3", "0", "0", "4", "3", "1", "0", "1", "2", "16", "25"},
+            {"2024-01-05", "DEN", "24", "3", "9", "1", "2", "2", "3", "2", "1", "0", "2", "1", "10", "18"},
+            {"2024-01-07", "PHX", "26", "6", "12", "3", "1", "2", "4", "3", "2", "0", "1", "1", "18", "28"},
+            {"2024-01-09", "MEM", "23", "4", "10", "2", "0", "0", "3", "2", "1", "0", "2", "0", "12", "20"},
+            {"2024-01-11", "NOP", "25", "5", "11", "2", "1", "2", "4", "3", "2", "0", "1", "1", "15", "24"}
+        });
+        players.add(player15);
+
+
+        Player player16 = new Player("16", "Royce O'Neale");
+        addPlayerStats(player16, new String[][]{
+            {"2024-01-01", "OKC", "26", "3", "7", "2", "0", "0", "4", "2", "1", "1", "1", "1", "9", "18"},
+            {"2024-01-03", "DAL", "28", "4", "8", "3", "0", "0", "5", "3", "0", "1", "2", "0", "13", "22"},
+            {"2024-01-05", "HOU", "25", "2", "6", "1", "0", "0", "3", "2", "1", "0", "1", "1", "6", "14"},
+            {"2024-01-07", "GSW", "27", "5", "9", "3", "1", "2", "4", "3", "1", "1", "2", "1", "16", "26"},
+            {"2024-01-09", "LAL", "24", "3", "7", "2", "0", "0", "4", "2", "0", "0", "1", "0", "9", "16"},
+            {"2024-01-11", "POR", "26", "4", "8", "2", "1", "1", "5", "3", "1", "1", "1", "1", "12", "22"}
+        });
+        players.add(player16);
+
+
+        Player player17 = new Player("17", "Alex Caruso");
+        addPlayerStats(player17, new String[][]{
+            {"2024-01-01", "ATL", "24", "3", "6", "1", "0", "0", "2", "3", "2", "1", "2", "1", "8", "18"},
+            {"2024-01-03", "WAS", "26", "4", "8", "2", "1", "2", "3", "4", "3", "0", "1", "2", "13", "24"},
+            {"2024-01-05", "ORL", "23", "2", "5", "1", "0", "0", "2", "2", "1", "1", "2", "1", "6", "14"},
+            {"2024-01-07", "DET", "25", "5", "9", "2", "2", "2", "3", "4", "2", "1", "1", "1", "16", "26"},
+            {"2024-01-09", "CHA", "22", "3", "7", "1", "0", "0", "2", "3", "2", "0", "2", "0", "8", "16"},
+            {"2024-01-11", "IND", "24", "4", "8", "2", "1", "2", "3", "4", "2", "1", "1", "1", "13", "22"}
+        });
+        players.add(player17);
+
+
+        Player player18 = new Player("18", "Caleb Martin");
+        addPlayerStats(player18, new String[][]{
+            {"2024-01-01", "PHX", "23", "4", "8", "1", "1", "2", "3", "2", "1", "0", "1", "1", "11", "18"},
+            {"2024-01-03", "DEN", "25", "5", "10", "2", "0", "0", "4", "1", "2", "1", "2", "0", "14", "24"},
+            {"2024-01-05", "LAL", "22", "3", "7", "1", "0", "0", "2", "1", "1", "0", "1", "1", "8", "14"},
+            {"2024-01-07", "MIN", "24", "6", "11", "2", "2", "2", "3", "2", "1", "1", "2", "1", "18", "26"},
+            {"2024-01-09", "SAC", "21", "4", "8", "1", "0", "0", "3", "1", "1", "0", "1", "0", "10", "16"},
+            {"2024-01-11", "CHI", "23", "5", "9", "2", "1", "2", "4", "2", "2", "0", "1", "1", "15", "22"}
+        });
+        players.add(player18);
+
+
+        Player player19 = new Player("19", "Kenyon Martin Jr.");
+        addPlayerStats(player19, new String[][]{
+            {"2024-01-01", "TOR", "22", "4", "7", "0", "2", "2", "4", "1", "0", "1", "1", "1", "10", "18"},
+            {"2024-01-03", "BOS", "24", "5", "9", "1", "1", "2", "5", "0", "1", "1", "2", "0", "13", "22"},
+            {"2024-01-05", "MIA", "21", "3", "6", "0", "0", "0", "3", "1", "0", "1", "1", "1", "6", "14"},
+            {"2024-01-07", "ORL", "23", "6", "10", "1", "2", "2", "4", "1", "1", "2", "2", "1", "16", "26"},
+            {"2024-01-09", "CLE", "20", "4", "7", "0", "0", "0", "3", "0", "0", "1", "1", "0", "8", "16"},
+            {"2024-01-11", "BKN", "22", "5", "8", "1", "1", "2", "4", "1", "1", "1", "1", "1", "13", "22"}
+        });
+        players.add(player19);
+
+
+        Player player20 = new Player("20", "Malik Monk");
+        addPlayerStats(player20, new String[][]{
+            {"2024-01-01", "MEM", "24", "5", "11", "2", "1", "2", "2", "3", "1", "0", "2", "2", "15", "22"},
+            {"2024-01-03", "NOP", "26", "6", "13", "3", "2", "2", "3", "4", "0", "0", "1", "1", "19", "28"},
+            {"2024-01-05", "UTA", "23", "4", "10", "1", "0", "0", "2", "2", "1", "0", "2", "2", "10", "16"},
+            {"2024-01-07", "LAC", "25", "7", "14", "3", "2", "3", "3", "4", "1", "0", "1", "1", "22", "32"},
+            {"2024-01-09", "POR", "22", "5", "12", "2", "1", "1", "2", "3", "0", "0", "2", "1", "15", "20"},
+            {"2024-01-11", "HOU", "24", "6", "13", "2", "1", "2", "3", "4", "1", "0", "1", "2", "17", "24"}
+        });
+        players.add(player20);
+
+
+        // Create and train the ML model
+        MLModel model = new MLModel();
+        System.out.println("Training model with " + players.size() + " players...");
+       
+        // Calculate season averages for all players
+        for (Player player : players) {
+            System.out.println("Calculating season averages for " + player.getPlayerName());
+            player.calculateSeasonAverages();
+            System.out.println("Games count: " + player.getGames().size() + ", Season averages size: " + player.getSeasonAVG_2425().size());
+        }
+       
+        model.train(players, 100); // Train for 100 epochs
+
+
+        // Display top 5 players
+        List<Player> topPlayers = model.selectTopPlayers(players, 5);
+        System.out.println("\nTop 5 players based on model predictions:");
+        for (int i = 0; i < topPlayers.size(); i++) {
+            System.out.println((i + 1) + ". " + topPlayers.get(i).getPlayerName());
+        }
+
+        // Command-line interface for player comparison
+        Scanner scanner = new Scanner(System.in);
+
+        while (true) {
+            System.out.println("\nList of all players:");
+            for (int i = 0; i < players.size(); i++) {
+                System.out.println((i + 1) + ". " + players.get(i).getPlayerName());
+            }
+
+            System.out.print("\nEnter the number of the first player to compare (or 0 to exit): ");
+            int firstPlayerIndex = scanner.nextInt() - 1;
+            if (firstPlayerIndex == -1) break;
+
+            System.out.print("Enter the number of the second player to compare: ");
+            int secondPlayerIndex = scanner.nextInt() - 1;
+
+            if (firstPlayerIndex < 0 || firstPlayerIndex >= players.size() ||
+                secondPlayerIndex < 0 || secondPlayerIndex >= players.size()) {
+                System.out.println("Invalid player selection. Please try again.");
+                continue;
+            }
+
+            Player player1ToCompare = players.get(firstPlayerIndex);
+            Player player2ToCompare = players.get(secondPlayerIndex);
+
+            double prediction = model.predict(player1ToCompare, player2ToCompare);
+
+            // Print the result using player names
+            if (prediction > 0.5) {
+                System.out.printf("\nThe model predicts that %s will score more fantasy points than %s in the next game.%n",
+                    player1ToCompare.getPlayerName(), player2ToCompare.getPlayerName());
+            } else {
+                System.out.printf("\nThe model predicts that %s will score more fantasy points than %s in the next game.%n",
+                    player2ToCompare.getPlayerName(), player1ToCompare.getPlayerName());
+            }
+        }
+
+        System.out.println("Exiting program. Goodbye!");
     }
 }
